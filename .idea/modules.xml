@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/pro_fivetable/pro_fivetable.iml" filepath="$PROJECT_DIR$/pro_fivetable/pro_fivetable.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sb_fivetable_privoder/sb_fivetable_privoder.iml" filepath="$PROJECT_DIR$/sb_fivetable_privoder/sb_fivetable_privoder.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wb512_springbot_x/springboot-anntion-consumer.iml" filepath="$PROJECT_DIR$/wb512_springbot_x/springboot-anntion-consumer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wb512_springbot_s/springboot_dubbo_s.iml" filepath="$PROJECT_DIR$/wb512_springbot_s/springboot_dubbo_s.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wb512_springbot_api/wb512_springbot_api.iml" filepath="$PROJECT_DIR$/wb512_springbot_api/wb512_springbot_api.iml" />
+    </modules>
+  </component>
+</project>

@@ -1,0 +1,234 @@
+﻿---分页
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jk.lwj.mapper.bean.BeanMapper">
+
+
+ServiceImpl层
+HashMap<Object,Object> params = new HashMap<>();
+		params.put("huiX", mainBean);
+		//查询Count
+		int count=beanMapper.selectCount(params);
+		//构建分页工具类
+		PageUtil<MainBean> pageUtil = new PageUtil<MainBean>(count, pageIndex, pageSize);
+		//查询list集合
+		params.put("startIndex",pageUtil.getStartIndex());
+		params.put("endIndex", pageUtil.getEndIndex());
+		List<MainBean> lists =beanMapper.selectPage(params);
+		pageUtil.setList(lists);
+		
+		return pageUtil;
+
+Mapper层
+<select id="selectPage" resultType="mainBean" parameterType="map">
+	
+	SELECT * FROM  
+		(  
+		SELECT A.*, ROWNUM RN  
+		FROM (
+       
+	     select t.id,t.name,t.sex,t.age,t.specialty,t.status ,
+                     otherId ,o.otherName  as  otherName
+                      from four2_student_main t
+                 left join  four2_student_other o on  o.otherId =t.otherId
+
+
+      ) A  
+		WHERE ROWNUM &lt;= #{endIndex,jdbcType=NUMERIC}  
+		)  
+		WHERE RN > #{startIndex,jdbcType=NUMERIC} 
+	</select>
+	
+	<select id="selectCount" resultType="int" parameterType="map">
+		 select  count(1)
+       from four2_student_main t 
+      left join  four2_student_other o on  o.otherId =t.otherId
+	     
+	</select>
+
+
+<sql  id="beanWhere">
+	       <where>
+
+			      <if test="huiX.name != null  and huiX.name != ''">
+			         and t.name like '%${huiX.name}%'
+			      </if> 
+		          <if test="huiX.startTime != null and huiX.startTime != '' ">
+						and t.createTime >= to_date(#{huiX.startTime},'yyyy-MM-dd')
+				  </if>
+				  <if test="huiX.endTime != null and huiX.endTime != '' ">
+				  		and t.createTime &lt;= to_date(#{huiX.endTime},'yyyy-MM-dd')
+				  </if>
+				  <if test="huiX.typeId != null and huiX.typeId != -1 ">
+				  		and t.typeId = #{huiX.typeId}
+				  </if>
+				  <if test="huiX.provice != null and huiX.provice !=-1 "><!-- 二级联动不能判断为空子符串 -->
+				  		and t.provice = #{huiX.provice}
+				  </if>
+				  <if test="huiX.city!= null and huiX.city != -1 ">
+				  		and t.city = #{huiX.city}
+				  </if>
+             </where>
+             
+     -    ---------    
+             	
+	 <!--删除  -->
+	  <delete id="delBeanByIds"  parameterType="int">
+         delete four2_student_main  where id in
+	        <foreach collection="array"  item="item"  separator=","  open="(" close=")">
+	           #{item}
+	        </foreach>
+      </delete>
+    -----------------  
+      
+ <!-- 新增 保存其他 -->
+ if(mainBean.getOtherId()==-1) {
+			OtherBean otherBean = new OtherBean();
+			otherBean.setOtherName(mainBean.getOtherName());
+			//将主表的name保存到小区表
+			//将小区表的id保存到主表
+			
+			beanMapper.saveOther(otherBean);
+			mainBean.setOtherId(otherBean.getOtherId());
+			
+		}
+		beanMapper.addBean(mainBean);
+ 
+ 
+     <insert id="saveOther" parameterType="otherBean">
+		  <selectKey keyProperty="otherId"  order="BEFORE"  resultType="int">
+		      select SQE_BEAN.NEXTVAL as otherId from dual  
+		  </selectKey>
+		      insert into four2_student_other (otherId,otherName)  values (#{otherId},#{otherName})
+	 </insert> 
+
+	 
+	   add.jsp===
+	   <td>
+	      <select id="area" name="otherId" onchange="change()">
+						<!-- <option value="1">A小区</option>
+						<option value="2">B小区</option>
+						<option value="-1">其他</option> -->
+						<input type="text" name="otherName" id="address" value="请输入学院名称" style="display:none;">
+		</select>
+	</td>
+	
+	
+	   function change(){
+			var area = document.getElementById("area");
+			if(area.value == -1){
+				document.getElementById("address").style.display="block";
+			}else{
+				document.getElementById("address").style.display="none";
+			}
+        }
+	   
+	   
+	   
+	   
+	   
+	    $(function(){
+            initOther();
+	   })
+   
+   //回显
+	 function initOther(){
+ 
+	  $.ajax({
+		  url:'../bean/toOther.do',
+		  type:'post',
+		  dataType:'json',
+		  success:function(data){
+			var html="<option value='-2'>--请选择--</option>";
+				for (var i = 0; i < data.length; i++) {
+					html+="<option value="+data[i].otherId+">"+data[i].otherName+"</option>"
+				}
+				html+="<option value='-1'>--其他--</option>";
+				$("#area").html(html);
+		  },error:function(){
+			  alert("加载失败！！")
+		  }
+	  })
+ }
+	-----------------------
+	Mapper
+	 <!-- 录用 -->
+	  <update id="updateStatus"  parameterType="int" >
+	    update four2_student_main set
+		<if test="status==1">
+			status=2
+		</if>
+		<if test="status==2">
+			status=1
+		</if>
+		
+		where id=#{id}
+   </update>  
+	 <!-- 拒绝 -->
+	  <update id="updateStatus2"  parameterType="int" >
+	    update four2_student_main set
+		<if test="status==2">
+			status=3
+		</if>
+		
+		where id=#{id}
+   </update>  
+	前台
+	  var detail=(data[i].detail==null)?"":data[i].detail;
+		       
+		        
+		           //1  录取  2 报考  3 拒绝
+		              
+                      var status=data[i].status== 1? "录取" : (data[i].status== 2? "报考中":'拒绝状态');
+                      var status2=data[i].status
+		               var caozuo ='';
+                      switch(status2){
+                      case 1:
+                      caozuo='恭喜恭喜';
+                      break;
+                      case 3:
+                      caozuo='加油加油';
+                      break;
+                    
+                     
+                      default:
+                      caozuo="<input type='button' value='录用' onclick='update("+data[i].id+","+data[i].status+");'>    <input type='button' value='拒绝' onclick='update2("+data[i].id+","+data[i].status+");'>    "
+                      break;
+                      
+                      }
+                      
+                      
+                       "<td>"+status+"</td>"+
+		         	   
+		         	   
+		         	  
+		         
+		         	   "<td>"+caozuo+"  <a href='javascript:delOneUtil(\"../bean/delBeanByIds.do\","+data[i].id+",true)'>删除</a></td>"+
+		         	   
+		         	   
+		         	    function update(id,status){
+					$.ajax({
+						url:'../bean/updateStatus.do',
+						type:'post',
+						data:{
+							id:id,
+							status:status
+						},
+						dataType:'json',
+						success:function(data){
+							if(data){
+								//search();
+								
+								location.href="../page/show.do";
+							}else{
+								alert('操作失败');
+							}
+						},
+						error:function(){
+							alert('加载数据失败');
+						}
+					})
+				}
+	
+	   

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- js初始化 -->
+    <script type="text/javascript"  src="../js/jquery-1.9.1.min.js"></script>
+    <!--easyui  -->
+    <script type="text/javascript"  src="../js/easyui1.5/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../js/easyui1.5/util-js.js"></script>
+    <script type="text/javascript" src="../js/easyui1.5/locale/easyui-lang-zh_CN.js"></script>
+    <link  rel="stylesheet"  href="../js/easyui1.5/themes/icon.css">
+    <link  rel="stylesheet"  href="../js/easyui1.5/themes/default/easyui.css">
+    <!-- 富文本 -->
+    <script type="text/javascript"  src="../js/kindeditor-4.1.10/kindeditor-all.js"></script>
+    <link  rel="styleSheet"   href="../js/kindeditor-4.1.10/themes/default/default.css" >
+    <!-- 图片  -->
+    <script type="text/javascript"  src="../js/uploadify/jquery.uploadify.js"></script>
+    <link  rel="styleSheet"   href="/js/uploadify/uploadify.css" >
+
+</head>
+<div id="toolbar">
+    <table >
+        <tr>
+            <td>名称模糊搜索</td>
+            <td><input class="easyui-textbox" id="name"></td>
+        </tr>
+        <tr>
+            <td>  时间区间</td>
+            <td>
+                <input type="text" id="brithS" class="easyui-datebox">-
+                <input type="text" id="brithT" class="easyui-datebox">
+            </td>
+        </tr>
+    </table>
+    <a href="javascript:searchBtn()" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true">搜索</a>
+    <br>
+    <a  href="javascript:openAddDialog();" class="easyui-linkbutton"    data-options="iconCls:'icon-add',plain:true">新增</a>
+    <a  id="delManyBtn"                    class="easyui-linkbutton"    data-options="iconCls:'icon-remove',plain:true">批量删除</a>
+</div>
+<table id="beanTable"></table>
+<body>
+
+
+</body>
+<script>
+    //表格
+    $("#beanTable").datagrid({
+        url:'../selectMain',
+        method:'post',
+        toolbar:'#toolbar',//搜索
+        pagination:true,//开启分页
+        pageList:[1,2,3,5,7],//与pageSize对应
+        pageSize:2,//每页多少条
+        pageNumber:1,//第几页
+        //  singleSelect:true,//单选一行  加了不能全选
+        fit:true,
+        columns:[[
+            {field:'123',checkbox:true},
+            {field:'id',title:'ID主键'},
+            {field:'name',title:'姓名'},
+            {field:'account',title:'账号'},
+            {field:'password',title:'密码'},
+            {field:'deptName',title:'部门deptName'},
+            /* {field:'roleId',title:'角色roleId'}, */
+            {field:'roleName',title:'角色roleName'},
+            {field:"sex",title:"性别",formatter:function(value,row,index){
+                    return value==1?"男":value==0?"女":"";
+                }},
+            {field:'birth',title:'生日'},
+            {field:'email',title:'邮箱'},
+            {field:"img",title:"头像",formatter:function(value,row,index){
+                    return "<img width='50px' height='50px' src='"+value+"'>";
+                }},
+            {field:'detail',title:'详情'},
+            {field:'provinceName',title:'地区',formatter:function(value,row,index){
+                    return value += '-'+row.cityName;
+                }},
+            {field:'states',title:'状态',formatter:function(value,row,index){
+                    return value==1?'解锁':(value==2?'<font color="red">锁定</font> ':'正常');
+
+                }},
+            {field:'456',title:'操作',formatter:function(value,row,index){
+                    var html ='';
+                    if(row.states ==3){
+                        html += "<a href='javascript:void(0)' onclick=updateStates("+row.id+") >锁定</a> ||";
+                    }
+                    if(row.states == 2){
+                        html += "<a href='javascript:void(0)' onclick=jiesuo("+row.id+")>解锁</a>  ||";
+                    }
+                    html+="<a href='javascript:delone("+row.id+")'>删除</a> |"
+                    html+="<a href='javascript:openUpdateDialog("+row.id+")'>修改</a>"
+                    return html;
+                }}
+        ]]
+    })
+</script>
+</html>

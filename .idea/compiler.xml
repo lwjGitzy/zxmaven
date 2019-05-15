@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="api_zy" />
+        <module name="con_zy" />
+        <module name="consumer_512zy" />
+        <module name="pro_zy" />
+        <module name="provider_512zy" />
+        <module name="springboot-anntion-consumer" />
+        <module name="springboot_dubbo_s" />
+        <module name="ss" />
+        <module name="wb512_springbot_api" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="dubboapi_512zy" target="1.7" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="con_zy" options="-parameters" />
+      <module name="consumer_512zy" options="-parameters" />
+      <module name="pro_zy" options="-parameters" />
+      <module name="provider_512zy" options="-parameters" />
+      <module name="springboot-anntion-consumer" options="-parameters" />
+      <module name="springboot_dubbo_s" options="-parameters" />
+      <module name="ss" options="-parameters" />
+    </option>
+  </component>
+</project>
